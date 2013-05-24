@@ -35,9 +35,9 @@ instance JSON Spec where
       <*> readMap  (m M.! "packs")
 
   showJSON (Spec {..}) = showMap $ M.fromList
-    [ ("dir",      showJSON outputDir)
-    , ("url",      showJSON outputURL)
-    , ("modPacks", showMap  modPacks)
+    [ ("dir",   showJSON outputDir)
+    , ("url",   showJSON outputURL)
+    , ("packs", showMap  modPacks)
     ]
 
 data ModPack = ModPack
