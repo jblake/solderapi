@@ -4,10 +4,10 @@ cabal-version: >=1.8
 license-file: LICENSE
 license: MIT
 maintainer: jblake@omgwallhack.org
-name: solder
+name: solderapi
 version: 0.1
 
-executable solder
+executable mksolder
   build-depends:
     base,
     bytestring,
@@ -19,7 +19,7 @@ executable solder
     json,
     monads-tf
   hs-source-dirs: src
-  main-is: Main.hs
+  main-is: MkSolder.hs
   other-modules:
     API
     Spec
