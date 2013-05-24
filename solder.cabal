@@ -1,0 +1,25 @@
+author: Julian Blake Kongslie
+build-type: Simple
+cabal-version: >=1.8
+license-file: LICENSE
+license: MIT
+maintainer: jblake@omgwallhack.org
+name: solder
+version: 0.1
+
+executable solder
+  build-depends:
+    base,
+    bytestring,
+    containers,
+    Crypto,
+    dataenc,
+    directory,
+    filepath,
+    json,
+    monads-tf
+  hs-source-dirs: src
+  main-is: Main.hs
+  other-modules:
+    API
+    Spec
