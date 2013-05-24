@@ -9,11 +9,14 @@ Please see:
 The Solder API is essentially *completely* undocumented, so most of this is
 guesswork and reverse engineering.
 
+Right now I think I'm compliant with Solder version 0.3. Bug reports are
+welcome.
+
 Unlike the reference implementation, this implementation creates a static
 directory tree rather than handling API requests dynamically. The data files
 are mirrored inline with the API requests, rather than at a separate URL.
 
-Your web browser must be configured to search for "index.json" files when
+Your web server must be configured to search for "index.json" files when
 serving requests for a bare directory. It should serve .json files with the
 MIME type "application/json".
 
@@ -55,7 +58,7 @@ this:
 The API tree that is created is going to be inferred based on the layout of
 the <specdir>. Some things to note:
 
-  What I call "logo.png" the Platform calls "logo_180.png" Deal with it.
+  What I call "logo.png" the Platform calls "logo_180.png". Deal with it.
 
   The "name.txt" files should contain the display name of the modpack.
 
