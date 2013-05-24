@@ -50,7 +50,7 @@ copyResource outputDir modPack resName fp = do
 copyMod :: (MonadIO m) => FilePath -> FilePath -> MD5Cache m String
 copyMod outputDir fp = do
   md5 <- getMD5 fp
-  let fp' = outputDir </> "mod" </> (md5 ++ ".zip")
+  let fp' = outputDir </> "mods" </> (md5 ++ ".zip")
   exist <- liftIO $ doesFileExist fp'
   when (not exist) $ do
     liftIO $ putStrLn $ md5 ++ " -> " ++ fp'
@@ -77,9 +77,9 @@ mkAPI (Spec {..}) = do
     ]
 
   copyJSON outputDir "" $ M.fromList
-    [ ("api",     "TechnicSolder")
-    , ("version", "0.3")
-    , ("stream",  "jblake")
+    [ ("api",     "TechnicSolder") -- The name of the API?
+    , ("version", "0.3")           -- The version of the API?
+    , ("stream",  "jblake")        -- The implementation of the API?
     ]
 
   where
@@ -95,7 +95,7 @@ mkAPI (Spec {..}) = do
       copyJSON outputDir ("modpack" </> modPack) $ M.fromList
         [ ("name",           JS.showJSON modPack)
         , ("display_name",   JS.showJSON niceName)
-        , ("url",            JS.JSNull)
+        , ("url",            JS.JSNull) -- I guess we could override the resources URL on a per-modpack basis? We don't want to, anyway.
         , ("background_md5", JS.showJSON backgroundMD5)
         , ("icon_md5",       JS.showJSON iconMD5)
         , ("logo_md5",       JS.showJSON logoMD5)
@@ -108,14 +108,16 @@ mkAPI (Spec {..}) = do
 
     copyModPackVersion modPack (modPackVersion, ModPackVersion {..}) = do
 
-      minecraftMD5 <- copyMod outputDir minecraftJar
+      -- Note that we do not actually copy the minecraft.jar; we only need it around to get the MD5.
+      -- I guess the Platform gets it from an official server or something?
+      minecraftMD5 <- getMD5 minecraftJar
 
       mods <- forM (M.assocs mods) copyModVersion
 
       copyJSON outputDir ("modpack" </> modPack </> modPackVersion) $ M.fromList
         [ ("minecraft",     JS.showJSON minecraftVersion)
         , ("minecraft_md5", JS.showJSON minecraftMD5)
-        , ("forge",         JS.JSNull)
+        , ("forge",         JS.JSNull) -- No idea how this is supposed to work, but the official modpacks set it to null, so that's what I'm doing.
         , ("mods",          JS.showJSON mods)
         ]
 

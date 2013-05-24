@@ -17,7 +17,9 @@ executable mksolder
     directory,
     filepath,
     json,
-    monads-tf
+    monads-tf,
+    split,
+    unix
   hs-source-dirs: src
   main-is: MkSolder.hs
   other-modules:
