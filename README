@@ -1,0 +1,114 @@
+This is an implementation of the Solder API used by the Technic Platform for
+Minecraft modpacks.
+
+Please see:
+  http://www.minecraft.net/ - Minecraft
+  http://www.technicpack.net/ - Technic Platform
+  https://github.com/TechnicPack/TechnicSolder - Reference implementation
+
+The Solder API is essentially *completely* undocumented, so most of this is
+guesswork and reverse engineering.
+
+Unlike the reference implementation, this implementation creates a static
+directory tree rather than handling API requests dynamically. The data files
+are mirrored inline with the API requests, rather than at a separate URL.
+
+Your web browser must be configured to search for "index.json" files when
+serving requests for a bare directory. It should serve .json files with the
+MIME type "application/json".
+
+Install this by first installing the Haskell platform, and then running "cabal
+install" in the same directory as the "solderapi.cabal" file. That should
+install all dependencies automatically. I hope.
+
+Once installed, this provides a program "mksolder" which creates a Solder API
+directory tree.
+
+You call mksolder like this:
+  mksolder <specdir> <outputdir> <url>
+
+<outputdir> is where on your local filesystem to create the API files.
+<url> should be a complete URL that will reach those files.
+
+<specdir> is a directory tree on the local filesystem that looks something like
+this:
+
+  <specdir>/
+    some-modpack/
+      name.txt
+      background.jpg
+      icon.png
+      logo.png
+      recommended -> some.version
+      latest -> some.version
+      some.version/
+        minecraft.txt
+        minecraft.jar
+        some-mod_version.zip
+        some-other-mod_version.zip
+        ...
+      some.other.version/
+        ...
+    some-other-modpack/
+      ...
+
+The API tree that is created is going to be inferred based on the layout of
+the <specdir>. Some things to note:
+
+  What I call "logo.png" the Platform calls "logo_180.png" Deal with it.
+
+  The "name.txt" files should contain the display name of the modpack.
+
+  "recommended" and "latest" should be symbolic links to the appropriate
+  version directories, or simple text files containing the appropriate version
+  number.
+
+  "minecraft.txt" files should be the version of minecraft appropriate for
+  that version of the modpack.
+
+  The various "mod_version.zip" files *must* be named with exactly one
+  underscore in them, separating the mod name from the mod version.
+
+In some cases, the directory layout above may not be flexible enough, or you
+may want to keep all the information about an API instance in a single file.
+For those situations, you may call mksolder like this:
+  mksolder <specfile> <outputdir> <url>
+
+<specfile> is a path to a JSON file that should look something like this:
+
+  { "some-modpack":
+    { "name": "Some ModPack"
+    , "background": "/path/to/background.jpg"
+    , "icon": "/path/to/icon.png"
+    , "logo": "/path/to/logo_180.png"
+    , "recommended": "recommended.version.of.this.pack"
+    , "latest": "latest.version.of.this.pack"
+    , "versions":
+      { "some.version.of.this.pack":
+        { "minecraft": "minecraft.version.number"
+        , "minecraftJar": "/path/to/minecraft.jar"
+        , "mods":
+          { "some-mod":
+            { "version": "mod.version.number"
+            , "zip": "/path/to/some-mod_version.zip"
+            }
+          , "some-other-mod":
+            { "version": "mod.version.number"
+            , "zip": "/path/to/some-other-mod_version.zip"
+            }
+          ...
+          }
+        }
+      , "another.version.of.this.pack":
+        { ... }
+      }
+    }
+  , "some-other-modpack":
+    { ... }
+  }
+
+This is a *complete* specification of what will be offered by the API. When
+you run mksolder, it will parse the spec, compute MD5s for all the files
+needed, copy everything to the <outputdir>, and create a whole bunch of
+smaller json files which are various subsets of this information for the
+Platform to use.
