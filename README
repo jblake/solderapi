@@ -20,6 +20,12 @@ Your web server must be configured to search for "index.json" files when
 serving requests for a bare directory. It should serve .json files with the
 MIME type "application/json".
 
+Your web server must also be configured to rewrite all requests for the
+"/verify/" subdirectory of the API instance to "/verify.json". Either that, or
+you need to make a "/verify/<yourplatformkey>" symlink that points to the
+"verify.json" file. The way the Platform does API keys is sort of screwy this
+way.
+
 Install this by first installing the Haskell platform, and then running "cabal
 install" in the same directory as the "solderapi.cabal" file. That should
 install all dependencies automatically. I hope.

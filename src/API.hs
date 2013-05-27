@@ -60,7 +60,7 @@ copyMod outputDir fp = do
 
 copyJSON :: (JS.JSON v, MonadIO m) => FilePath -> FilePath -> M.Map String v -> m ()
 copyJSON outputDir fp js = do
-  let fp' = outputDir </> fp </> "index.json"
+  let fp' = outputDir </> (fp ++ ".json")
   liftIO $ putStrLn $ "                            json -> " ++ fp'
   let json = JS.encodeStrict $ JS.toJSObject $ M.assocs $ M.map JS.showJSON js
   mkParent fp'
@@ -71,12 +71,16 @@ mkAPI (Spec {..}) = do
 
   names <- evalStateT (forM (M.assocs modPacks) copyModPack) M.empty
 
-  copyJSON outputDir "modpack" $ M.fromList
+  copyJSON outputDir "modpack/index" $ M.fromList
     [ ("modpacks",   showMap $ M.fromList names)
     , ("mirror_url", JS.showJSON outputURL)
     ]
 
-  copyJSON outputDir "" $ M.fromList
+  copyJSON outputDir "verify" $ M.fromList
+    [ ("valid", "This Solder instance is static and does not check API keys.")
+    ]
+
+  copyJSON outputDir "index" $ M.fromList
     [ ("api",     "TechnicSolder") -- The name of the API?
     , ("version", "0.3")           -- The version of the API?
     , ("stream",  "jblake")        -- The implementation of the API?
@@ -92,7 +96,7 @@ mkAPI (Spec {..}) = do
 
       forM_ (M.assocs versions) $ copyModPackVersion modPack
 
-      copyJSON outputDir ("modpack" </> modPack) $ M.fromList
+      copyJSON outputDir ("modpack" </> modPack </> "index") $ M.fromList
         [ ("name",           JS.showJSON modPack)
         , ("display_name",   JS.showJSON niceName)
         , ("url",            JS.JSNull) -- I guess we could override the resources URL on a per-modpack basis? We don't want to, anyway.
@@ -114,7 +118,7 @@ mkAPI (Spec {..}) = do
 
       mods <- forM (M.assocs mods) copyModVersion
 
-      copyJSON outputDir ("modpack" </> modPack </> modPackVersion) $ M.fromList
+      copyJSON outputDir ("modpack" </> modPack </> modPackVersion </> index) $ M.fromList
         [ ("minecraft",     JS.showJSON minecraftVersion)
         , ("minecraft_md5", JS.showJSON minecraftMD5)
         , ("forge",         JS.JSNull) -- No idea how this is supposed to work, but the official modpacks set it to null, so that's what I'm doing.
